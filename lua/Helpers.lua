@@ -5,6 +5,10 @@ local deg, rad = math.deg, math.rad
 math.sin = function (x) return sin(rad(x)) end
 math.cos = function (x) return cos(rad(x)) end
 
+function capitalize(str)
+    return str:gsub("^%l", string.upper)
+end
+
 function table.clone(tbl)
     return { table.unpack(tbl) }
 end
@@ -23,12 +27,14 @@ function dump(o)
     if type(o) == 'table' then
        local s = '{ '
        for k, v in pairs(o) do
-          if type(k) ~= 'number' then k = '"' .. k .. '"' end
-          s = s .. '[' .. k ..'] = ' .. dump(v) .. ','
+          local stringkey = type(k) ~= 'number'
+          k = '"' .. k .. '"'
+          s = s .. k .. ': ' .. dump(v) .. ','
        end
        return s .. '} '
     else
-       return tostring(o)
+        local stringvalue = type(o) ~= 'number'
+        return stringvalue and '"' .. tostring(o) .. '"' or tostring(o)
     end
  end
 
@@ -58,10 +64,10 @@ function range(from, count)
     return range
 end
 
-function cardName(number, capitalize)
+function cardName(number, cap)
     local name = ({"cookie", "blueguy", "strontium", "37", "persians", "cosine", "hill", "sword", "shield"})[number]
 
-    return capitalize and name:gsub("^%l", string.upper) or name
+    return cap and capitalize(name) or name
 end
 
 function cardNickname(number)
@@ -100,29 +106,30 @@ function cardData(id, additionalTags, players)
         Name = "Card",
         Nickname = cardNickname(number),
         Description = cardDescription(number, players),
-        Tags = tags,
-        CardID = id
+        CardID = id,
+        Tags = tags
     }
 
     return data
 end
 
-function deckContainedObjectsData(startId, count, tags, players)
+function deckContainedObjectsData(startId, count, tags, players, customDeck)
     local data = {}
 
     for i = 1, count do
-        data[i] = cardData(startId + i - 1, tags, players)
+        data[i] = cardData(startId + i - 1, tags, players, customDeck)
     end
 
     return data
 end
 
 function deckTransform(name)
-    local angle = name == "characters" and 0 or (table.index(COLORS, name) - 1) * 60
+    local isCharacter = name == "characters"
+    local angle = isCharacter and 0 or (table.index(COLORS, name) - 1) * 60
     local transform = {
-        posX = -math.sin(angle) * 3,
+        posX = isCharacter and 0 or -math.sin(angle) * 3,
         posY = 1,
-        posZ = -math.cos(angle) * 3,
+        posZ = isCharacter and 0 or -math.cos(angle) * 3,
         rotX = 180,
         rotY = angle,
         rotZ = 0,
@@ -239,22 +246,26 @@ function deckData(name)
     local count = deckCount(name)
     local tags = deckTags(name)
     local angle = name == "characters" and 0 or (table.index(COLORS, name) - 1) * 60
+    local customDeck = { }
+    customDeck[math.floor(startId / 100)] = {
+        FaceURL = face(deckFace(name)),
+        BackURL = back(deckBack(name)),
+        NumWidth = deckColumns(name),
+        NumHeight = deckRows(name),
+        BackIsHidden = true,
+        UniqueBack = false,
+        Type = 0
+    }
     local data = {
         data = {
             Name = "DeckCustom",
             Transform = deckTransform(name),
             Nickname = deckNickname(name),
             Description = deckDescription(name),
-            Tags = deckTags(name),
-            CustomDeck = {{
-                FaceURL = face(deckFace(name)),
-                BackURL = back(deckBack(name)),
-                NumWidth = deckColumns(name),
-                NumHeight = deckRows(name),
-                Type = 0
-            }},
             DeckIDs = range(startId, count),
-            ContainedObjects = deckContainedObjectsData(startId, count, tags, players)
+            CustomDeck = customDeck,
+            Tags = deckTags(name),
+            ContainedObjects = deckContainedObjectsData(startId, count, tags, players, customDeck)
         }
     }
 

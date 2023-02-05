@@ -25,23 +25,22 @@ function clearEverything()
 end
 
 function setupCharactersDeck()
-    local deck = spawnDeck("characters")
-
-    return deck
+    return spawnDeck("characters")
 end
 
 function setupPlayerDeck(color)
-    local deck = spawnDeck(color)
+    return spawnDeck(color)
+end
 
-    return deck
+function setupSeatedPlayersDecks()
+    local seatedPlayers = getSeatedPlayers()
+    
+    for _, color in pairs(COLORS) do
+        if table.contains(seatedPlayers, capitalize(color)) then setupPlayerDeck(color) end
+    end
 end
 
 function setupEverything()
-    --setupCharactersDeck()
-    setupPlayerDeck("orange")
-    setupPlayerDeck("yellow")
-    setupPlayerDeck("green")
-    setupPlayerDeck("teal")
-    -- setupPlayerDeck("blue")
-    -- setupPlayerDeck("purple")
+    setupCharactersDeck()
+    setupSeatedPlayersDecks()
 end
