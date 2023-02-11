@@ -1,4 +1,15 @@
 BASE_URL = BASE_URL and BASE_URL or "https://lufton.github.io/cookie2.0/"
 BASE_IMAGES_URL = BASE_URL .. "images/"
-COLORS = { "orange", "yellow", "green", "teal", "blue", "purple" }
+CARDS = { "Cookie", "Blueguy", "Strontium", "37", "Persians", "Cosine", "Hill", "Sword", "Shield" }
+COLORS = { "Orange", "Yellow", "Green", "Teal", "Blue", "Purple" }
 CARDS_SCALE = 0.7
+CARDS_X_OFFSET = 1.8
+CARDS_Y_OFFSET = 2.5
+CARDS_ZONES_SCALE = { 1.6, 2, 2.2 }
+CHARACTERS_ZONES_SCALE = { 1.6, 0.05, 2.2 }
+INNER_CARDS_Y_OFFSET = 3.2
+CLUE_CARDS_Y_OFFSET = 11.5
+FIRST_PLAYER_MARKER_X_OFFSET = 1.5
+FIRST_PLAYER_MARKER_Y_OFFSET = 3.8
+GAME_MODE = 1
+GAME_STARTED = false
